@@ -22,7 +22,7 @@ module purge
 
 echo "start"
 singularity exec --nv \
-            --overlay /scratch/lg154/python36/python36.ext3:ro \
+            --overlay /scratch/lg154/python36/python36.ext3:rw \
             /scratch/work/public/singularity/cuda11.2.2-cudnn8-devel-ubuntu20.04.sif \
             /bin/bash -c " source /ext3/env.sh;
             python setup.py build install > log.txt 2>&1"
