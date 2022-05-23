@@ -16,7 +16,7 @@ import math
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torch.nn.init import xavier_uniform_, constant_, kaiming_uniform_
+from torch.nn.init import xavier_uniform_, constant_
 
 from ..functions import MSDeformAttnFunction
 
@@ -54,12 +54,12 @@ class MSDeformAttn(nn.Module):
 
         self.sampling_offsets = nn.Linear(d_model, n_heads * n_levels * n_points * 2)
         self.attention_weights = nn.Linear(d_model, n_heads * n_levels * n_points)
-        self.value_proj = nn.Linear(d_model, d_model, bias=False)
-        self.output_proj = nn.Linear(d_model, d_model, bias=False)
+        self.value_proj = nn.Linear(d_model, d_model)
+        self.output_proj = nn.Linear(d_model, d_model)
 
         self._reset_parameters()
 
-    def _reset_parameters(self, method='xavier'):
+    def _reset_parameters(self):
         constant_(self.sampling_offsets.weight.data, 0.)
         thetas = torch.arange(self.n_heads, dtype=torch.float32) * (2.0 * math.pi / self.n_heads)
         grid_init = torch.stack([thetas.cos(), thetas.sin()], -1)
@@ -70,16 +70,10 @@ class MSDeformAttn(nn.Module):
             self.sampling_offsets.bias = nn.Parameter(grid_init.view(-1))
         constant_(self.attention_weights.weight.data, 0.)
         constant_(self.attention_weights.bias.data, 0.)
-        # xavier_uniform_(self.value_proj.weight.data)
-        # constant_(self.value_proj.bias.data, 0.)
-        # xavier_uniform_(self.output_proj.weight.data)
-        # constant_(self.output_proj.bias.data, 0.)
-        if method=='kaiming':
-            kaiming_uniform_(self.value_proj.weight, a=0, nonlinearity='relu')
-            kaiming_uniform_(self.output_proj.weight, a=0, nonlinearity='relu') 
-        elif method=='xavier':
-            xavier_uniform_(self.value_proj.weight.data)
-            xavier_uniform_(self.output_proj.weight.data)
+        xavier_uniform_(self.value_proj.weight.data)
+        constant_(self.value_proj.bias.data, 0.)
+        xavier_uniform_(self.output_proj.weight.data)
+        constant_(self.output_proj.bias.data, 0.)
 
     def forward(self, query, reference_points, input_flatten, input_spatial_shapes, input_level_start_index, input_padding_mask=None):
         """
@@ -99,17 +93,11 @@ class MSDeformAttn(nn.Module):
 
         value = self.value_proj(input_flatten)
         if input_padding_mask is not None:
-            drp_mask = torch.ones_like(input_padding_mask).float()
-            drp_mask = F.dropout(drp_mask, p=0.1, training=self.training) 
-            drp_mask = drp_mask==0
-            value = value.masked_fill(drp_mask[..., None], float(0))
-
             value = value.masked_fill(input_padding_mask[..., None], float(0))
         value = value.view(N, Len_in, self.n_heads, self.d_model // self.n_heads)
         sampling_offsets = self.sampling_offsets(query).view(N, Len_q, self.n_heads, self.n_levels, self.n_points, 2)
         attention_weights = self.attention_weights(query).view(N, Len_q, self.n_heads, self.n_levels * self.n_points)
         attention_weights = F.softmax(attention_weights, -1).view(N, Len_q, self.n_heads, self.n_levels, self.n_points)
-        attention_weights = F.dropout(attention_weights, p=0.1, training=self.training)
         # N, Len_q, n_heads, n_levels, n_points, 2
         if reference_points.shape[-1] == 2:
             offset_normalizer = torch.stack([input_spatial_shapes[..., 1], input_spatial_shapes[..., 0]], -1)
