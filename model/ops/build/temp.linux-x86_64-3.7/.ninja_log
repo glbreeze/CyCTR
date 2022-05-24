@@ -1,0 +1,4 @@
+# ninja log v5
+1	6702	1653359782203577041	/scratch/lg154/sseg/CyCTR/model/ops/build/temp.linux-x86_64-3.7/scratch/lg154/sseg/CyCTR/model/ops/src/cpu/ms_deform_attn_cpu.o	f7f98ce8e30975b7
+2	16101	1653359791617005997	/scratch/lg154/sseg/CyCTR/model/ops/build/temp.linux-x86_64-3.7/scratch/lg154/sseg/CyCTR/model/ops/src/cuda/ms_deform_attn_cuda.o	70089db58a66d4d6
+1	28241	1653359803752269956	/scratch/lg154/sseg/CyCTR/model/ops/build/temp.linux-x86_64-3.7/scratch/lg154/sseg/CyCTR/model/ops/src/vision.o	bb5062bca73b2aad
