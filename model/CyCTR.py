@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from model.resnet import *
+#from model.resnet import *
 from model.loss import WeightedDiceLoss
 from model.cyc_transformer import CyCTransformer
 from model.ops.modules import MSDeformAttn
