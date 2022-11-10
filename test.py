@@ -134,8 +134,8 @@ def main_worker(gpu, ngpus_per_node, argss):
             transform.ToTensor(),
             transform.Normalize(mean=mean, std=std)])           
     val_data = dataset.SemData(split=args.split, shot=args.shot, data_root=args.data_root, \
-                            data_list=args.val_list, transform=val_transform, mode='val', \
-                            use_coco=args.use_coco, use_split_coco=args.use_split_coco)
+                                   data_list=args.val_list, transform=val_transform, mode='val', \
+                                   use_coco=args.use_coco, use_split_coco=args.use_split_coco)
     val_sampler = None
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=args.batch_size_val, shuffle=False, num_workers=args.workers, pin_memory=True, sampler=val_sampler)
 
@@ -169,7 +169,7 @@ def validate(val_loader, model, criterion):
     end = time.time()
     if args.split != 999:
         if args.use_coco:
-            test_num = 5000
+            test_num = 2000
         else:
             test_num = 1000 
     else:

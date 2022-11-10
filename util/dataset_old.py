@@ -26,19 +26,18 @@ def make_dataset(split=0, data_root=None, data_list=None, sub_list=None):
     if not os.path.isfile(data_list):
         raise (RuntimeError("Image list file do not exist: " + data_list + "\n"))
 
-    # split_data_list = data_list.split('.')[0] + '_split{}'.format(split) + '.pth'
-    # if os.path.isfile(split_data_list):
-    #     image_label_list, sub_class_file_list = torch.load(split_data_list)
-    #     return image_label_list, sub_class_file_list
-
+    split_data_list = data_list.split('.')[0] + '_split{}'.format(split) + '.pth'
+    if os.path.isfile(split_data_list):
+        image_label_list, sub_class_file_list = torch.load(split_data_list)
+        return image_label_list, sub_class_file_list
     # Shaban uses these lines to remove small objects:
     # if util.change_coordinates(mask, 32.0, 0.0).sum() > 2:
     #    filtered_item.append(item)      
     # which means the mask will be downsampled to 1/32 of the original size and the valid area should be larger than 2, 
     # therefore the area in original size should be accordingly larger than 2 * 32 * 32    
     image_label_list = []  
-    list_read = open(data_list).readlines()
-    # list_read = json.load(open(data_list))
+    # list_read = open(data_list).readlines()
+    list_read = json.load(open(data_list))
     print("Processing data...")
     sub_class_file_list = {}
     for sub_c in sub_list:
@@ -46,9 +45,9 @@ def make_dataset(split=0, data_root=None, data_list=None, sub_list=None):
 
     for l_idx in tqdm(range(len(list_read))):
         line = list_read[l_idx]
-        line = line.strip()
-        line_split = line.split(' ')
-
+        # line = line.strip()
+        # line_split = line.split(' ')
+        line_split = line
         image_name = os.path.join(data_root, line_split[0])
         label_name = os.path.join(data_root, line_split[1])
         item = (image_name, label_name)
@@ -79,7 +78,8 @@ def make_dataset(split=0, data_root=None, data_list=None, sub_list=None):
                     
     print("Checking image&label pair {} list done! ".format(split))
     print("Saving processed data...")
-
+    torch.save((image_label_list, sub_class_file_list), split_data_list)
+    print("Done")
     return image_label_list, sub_class_file_list
 
 
