@@ -136,10 +136,13 @@ def main_worker(gpu, ngpus_per_node, argss):
     val_data = dataset.SemData(split=args.split, shot=args.shot, data_root=args.data_root, \
                                    data_list=args.val_list, transform=val_transform, mode='val', \
                                    use_coco=args.use_coco, use_split_coco=args.use_split_coco)
-    val_sampler = None
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=args.batch_size_val, shuffle=False, num_workers=args.workers, pin_memory=True, sampler=val_sampler)
+    for shot in [1, 2, 3, 5, 10, 15, 20]:
+        val_data.shot = shot
+        val_sampler = None
+        val_loader = torch.utils.data.DataLoader(val_data, batch_size=args.batch_size_val, shuffle=False,
+                                                 num_workers=args.workers, pin_memory=True, sampler=val_sampler)
 
-    loss_val, mIoU_val, mAcc_val, allAcc_val, class_miou = validate(val_loader, model, criterion) 
+        loss_val, mIoU_val, mAcc_val, allAcc_val, class_miou = validate(val_loader, model, criterion)
 
 def validate(val_loader, model, criterion):
     if main_process():
@@ -219,7 +222,7 @@ def validate(val_loader, model, criterion):
             loss_meter.update(loss.item(), input.size(0))
             batch_time.update(time.time() - end)
             end = time.time()
-            if ((i + 1) % (test_num/100) == 0) and main_process():
+            if ((i + 1) % (test_num/20) == 0) and main_process():
                 logger.info('Test: [{}/{}] '
                             'Data {data_time.val:.3f} ({data_time.avg:.3f}) '
                             'Batch {batch_time.val:.3f} ({batch_time.avg:.3f}) '
