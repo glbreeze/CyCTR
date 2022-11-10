@@ -137,6 +137,7 @@ def main_worker(gpu, ngpus_per_node, argss):
                                    data_list=args.val_list, transform=val_transform, mode='val', \
                                    use_coco=args.use_coco, use_split_coco=args.use_split_coco)
     for shot in [1, 2, 3, 5, 10, 15, 20]:
+        logger.info("=======================shot{}================================".format(shot))
         val_data.shot = shot
         val_sampler = None
         val_loader = torch.utils.data.DataLoader(val_data, batch_size=args.batch_size_val, shuffle=False,
