@@ -1,2 +1,9 @@
 *.pyc
 *.xml
+pretrain/
+initmodel/
+model/__pycache__/
+util/__pycache__/
+.idea/
+*.zip
+model/__pycache__

@@ -31,15 +31,15 @@ def weighted_dice_loss(
     
     n, _, h, w = target_seg.shape
 
-    prediction = prediction.reshape(-1, h, w)
-    target_seg = target_seg.reshape(-1, h, w)
+    prediction = prediction.reshape(-1, h, w)   # [B*2, h, w]
+    target_seg = target_seg.reshape(-1, h, w)   # [B*2, h, w]
     prediction = torch.sigmoid(prediction)
-    prediction = prediction.reshape(-1, h*w)
-    target_seg = target_seg.reshape(-1, h*w)
+    prediction = prediction.reshape(-1, h*w)   # [B*2, h*w]
+    target_seg = target_seg.reshape(-1, h*w)   # [B*2, h*w]
 
     # calculate dice loss
     loss_part = (prediction ** 2).sum(dim=-1) + (target_seg ** 2).sum(dim=-1)
-    loss = 1 - 2 * (target_seg * prediction).sum(dim=-1) / torch.clamp(loss_part, min=eps)
+    loss = 1 - 2 * (target_seg * prediction).sum(dim=-1) / torch.clamp(loss_part, min=eps)   # [B*2]
     # normalize the loss
     loss = loss * weighted_val
 

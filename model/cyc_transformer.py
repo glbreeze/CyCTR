@@ -354,7 +354,7 @@ class CyCTransformer(nn.Module):
 
         return k, supp_mask, supp_valid_mask
 
-    def forward(self, x, qry_masks, s_x, supp_mask, s_padding_mask):
+    def forward(self, x, qry_masks, s_x, supp_mask, s_padding_mask):   # x:query(merged_feat), s_x:support(merged_feat)
         if not isinstance(x, list):
             x = [x]
         if not isinstance(qry_masks, list):

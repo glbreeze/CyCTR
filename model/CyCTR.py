@@ -148,14 +148,14 @@ class CyCTR(nn.Module):
         supp_bcb_fts = self.backbone(s_x.view(-1, 3, *img_size)) 
         query_feat = torch.cat([qry_bcb_fts['1'], qry_bcb_fts['2']], dim=1)
         supp_feat = torch.cat([supp_bcb_fts['1'], supp_bcb_fts['2']], dim=1)
-        query_feat = self.adjust_feature_qry(query_feat)
+        query_feat = self.adjust_feature_qry(query_feat)      # reduce dimension
         mid_query_feat = query_feat.clone()
-        supp_feat = self.adjust_feature_supp(supp_feat) 
+        supp_feat = self.adjust_feature_supp(supp_feat)       # reduce dimension
 
         fts_size = query_feat.shape[-2:]
         supp_mask = F.interpolate((s_y==1).view(-1, *img_size).float().unsqueeze(1), size=(fts_size[0], fts_size[1]), mode='bilinear', align_corners=True)         
  
-        # global feature extraction
+        # global feature extraction, get prototype
         supp_feat_list = []
         r_supp_feat = supp_feat.view(batch_size, self.shot, -1, fts_size[0], fts_size[1])
         for st in range(self.shot):
@@ -179,7 +179,7 @@ class CyCTR(nn.Module):
         corr_query_mask = self.generate_prior(query_feat_high, supp_feat_high, s_y, fts_size)
         
         # feature mixing
-        query_cat_feat = [query_feat, global_supp_pp.expand(-1, -1, fts_size[0], fts_size[1]), corr_query_mask]
+        query_cat_feat = [query_feat, global_supp_pp.expand(-1, -1, fts_size[0], fts_size[1]), corr_query_mask]    # query feat || proto || prior
         query_feat = self.qry_merge_feat(torch.cat(query_cat_feat, dim=1))
 
         if self.with_transformer:
