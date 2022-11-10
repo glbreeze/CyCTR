@@ -1,7 +1,7 @@
 DATA:
-  data_root: "data/coco"
-  train_list: "lists/coco/train_list.json"
-  val_list: "lists/coco/val_list.json"
+  data_root: "/coco/"
+  train_list: "lists/coco/train_data_list.txt"
+  val_list: "lists/coco/val_data_list.txt"
   classes: 2
 
 TRAIN:
@@ -32,7 +32,7 @@ TRAIN:
   print_freq: 5
   save_freq: 20
   save_path: exp/coco/split0_resnet50/model
-  weight:  
+  weight:  ./pretrain/coco/coco_split0_r50.pth
   resume:  # path to latest checkpoint (default: none)
   evaluate: True
   split: 0
